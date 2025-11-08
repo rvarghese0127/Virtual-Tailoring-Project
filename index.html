@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Tailoring System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .input-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .video-section {
+            margin-bottom: 30px;
+        }
+        
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        #video {
+            width: 100%;
+            display: block;
+        }
+        
+        #canvas {
+            display: none;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .results {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .results h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .measurement-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .measurement-label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .measurement-value {
+            font-size: 1.2em;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .measurement-confidence {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .error.show {
+            display: block;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .instructions {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✂️ Virtual Tailoring System</h1>
+            <p>AI-Powered Body Measurement from T-Pose</p>
+        </div>
+        
+        <div class="content">
+            <div class="instructions">
+                <h3>📋 Instructions</h3>
+                <ol>
+                    <li>Enter your height and select the unit</li>
+                    <li>Click "Start Camera" to activate your webcam</li>
+                    <li>Stand back so your full body is visible</li>
+                    <li>Adopt a T-Pose (arms straight out horizontally, feet visible)</li>
+                    <li>Click "Capture & Measure" when ready</li>
+                </ol>
+            </div>
+            
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="height">Your Height:</label>
+                    <input type="number" id="height" placeholder="Enter your height" value="170" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label for="unit">Unit:</label>
+                    <select id="unit">
+                        <option value="cm">Centimeters (cm)</option>
+                        <option value="inches">Inches</option>
+                        <option value="m">Meters (m)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="video-section">
+                <div class="video-container">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas"></canvas>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn-primary" id="startBtn" onclick="startCamera()">Start Camera</button>
+                    <button class="btn-success" id="captureBtn" onclick="captureAndMeasure()" disabled>Capture & Measure</button>
+                    <button class="btn-secondary" id="stopBtn" onclick="stopCamera()" disabled>Stop Camera</button>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing image and calculating measurements...</p>
+            </div>
+            
+            <div class="error" id="error"></div>
+            
+            <div class="results" id="results">
+                <h2>📏 Measurement Results</h2>
+                <div id="measurements"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let stream = null;
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'user'
+                    } 
+                });
+                video.srcObject = stream;
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('captureBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = false;
+                hideError();
+            } catch (err) {
+                showError('Error accessing camera: ' + err.message);
+            }
+        }
+        
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                video.srcObject = null;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('captureBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = true;
+            }
+        }
+        
+        async function captureAndMeasure() {
+            const height = parseFloat(document.getElementById('height').value);
+            const unit = document.getElementById('unit').value;
+            
+            if (!height || height <= 0) {
+                showError('Please enter a valid height');
+                return;
+            }
+            
+            if (!stream) {
+                showError('Please start the camera first');
+                return;
+            }
+            
+            // Set canvas dimensions to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Draw current video frame to canvas
+            ctx.drawImage(video, 0, 0);
+            
+            // Convert canvas to base64
+            const imageData = canvas.toDataURL('image/jpeg', 0.8);
+            
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('results').classList.remove('show');
+            hideError();
+            document.getElementById('captureBtn').disabled = true;
+            
+            try {
+                const response = await fetch('/api/measure', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        image: imageData,
+                        height: height,
+                        unit: unit
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data.measurements);
+                } else {
+                    showError(data.error || 'Failed to process image');
+                }
+            } catch (err) {
+                showError('Error: ' + err.message);
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('captureBtn').disabled = false;
+            }
+        }
+        
+        function displayResults(measurements) {
+            const resultsDiv = document.getElementById('measurements');
+            resultsDiv.innerHTML = '';
+            
+            for (const [key, value] of Object.entries(measurements)) {
+                if (key === 'unit') continue;
+                
+                const item = document.createElement('div');
+                item.className = 'measurement-item';
+                item.innerHTML = `
+                    <div>
+                        <div class="measurement-label">${key}</div>
+                        <div class="measurement-confidence">Confidence: ${value.confidence}%</div>
+                    </div>
+                    <div class="measurement-value">${value.value} ${measurements.unit}</div>
+                `;
+                resultsDiv.appendChild(item);
+            }
+            
+            document.getElementById('results').classList.add('show');
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+        
+        function hideError() {
+            document.getElementById('error').classList.remove('show');
+        }
+        
+        // Clean up on page unload
+        window.addEventListener('beforeunload', stopCamera);
+    </script>
+</body>
+</html>
+
