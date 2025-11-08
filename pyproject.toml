@@ -2,9 +2,14 @@
 name = "virtual-tailoring"
 version = "1.0.0"
 requires-python = ">=3.11,<3.12"
-
-[tool.setuptools]
-py-modules = []
+dependencies = [
+    "setuptools>=65.0.0",
+    "wheel",
+    "opencv-python-headless==4.8.1.78",
+    "ultralytics==8.0.196",
+    "numpy>=1.26.0,<2.0.0",
+    "Pillow>=10.0.1",
+]
 
 [build-system]
 requires = ["setuptools>=65.0.0", "wheel"]
